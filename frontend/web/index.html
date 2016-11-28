@@ -1,0 +1,77 @@
+<html lang="en" >
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+</head>
+<body ng-app="ExampleApp" ng-cloak>
+	<div ng-controller="pageCtrl">
+		<md-list>
+			<md-list-item ng-repeat="order in orders">
+				<p> {{ order }} </p>
+				<md-checkbox class="md-secondary"></md-checkbox>
+			</md-list-item>
+		</md-list>
+
+		<md-input-container class="md-block" flex-gt-sm>
+			<label>Item name</label>
+			<input ng-model="textInput">
+		</md-input-container>
+		<md-button ng-click="addItem()" class="md-raised md-primary">Add order</md-button>
+		<md-button ng-click="fetchItems()" class="md-raised md-primary">Fetch orders</md-button>
+	</div>
+
+	<!-- Angular Material requires Angular.js Libraries -->
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+
+	<!-- Angular Material Library -->
+	<script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+
+	<!-- Your application bootstrap  -->
+	<script type="text/javascript">
+		var app = angular.module('ExampleApp', ['ngMaterial']);
+
+		app.controller("pageCtrl", function($scope, $http) {
+			/*
+			 * Modifications of this list will automatically update on the page
+			 */
+			$scope.orders = ["Bluetooth Headphones", "Christmas Gift"];
+
+			/*
+			 * Documentation https://docs.angularjs.org/api/ng/service/$http
+			 */
+			$scope.addItem = function () {
+				var data = $scope.textInput;
+
+				$http.post(window.location.href+'interface/', data);
+
+				$scope.textInput = "";
+			}
+
+			$scope.fetchItems = function () {
+				/*
+				 * Rest interface documentation for mongodb: https://docs.mongodb.com/ecosystem/tools/http-interfaces/#simple-rest-api
+				 * Remember --rest command line switch!
+				 */
+				$http.get(window.location.href+'backend/orders/').then(function(response) {
+					// Get data
+					content = angular.fromJson(response.data);
+
+					// Prepare array for switch to avoid multiple angular digests
+					var newRows = [];
+
+					// Push content
+					content.forEach(function(name) {
+						newRows.push(name);
+					});
+
+					// Swap content
+					$scope.orders = newRows;
+				});
+			}
+		});
+		</script>
+</body>
+</html>
